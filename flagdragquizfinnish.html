@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="jquery-ui.min.js"></script>
+ <link rel="stylesheet" href="jquery-ui.css">
+  <script src="underscore-min.js"></script>
+  <script src="sorttable.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  <title>FlagDropQuiz</title>
+<style>
+body{
+    background-color: #282923;
+}
+span, td{
+    color:white;
+    font-size:0.81em;
+    border:2px solid black;
+    padding:0px;
+
+}
+img{
+  width:140px;
+  height: auto;
+  padding:10px;
+}
+.green{
+  background-color: lime;
+  color:black;
+}
+.red{
+  background: red;
+}
+
+</style>    
+</head>
+<body>
+<div id="correct">
+  <span style="font-size:1.8em;position: absolute;color:lime;top:4%;">Lippuja paikoillaan: 0/51</span>
+</div>
+<div id="wrong">
+  <span style="font-size:1.8em;position: absolute;color:red;">Lippuja laitettu väärille paikoille: 0</span>
+</div> 
+<div id="points">
+  <span style="font-size:1.8em;position: absolute;color:yellow;top:8%;">Pisteitä: 0/101</span>
+</div> 
+
+<div id="completedflags" style="width:470px;height: 950px;position: absolute;top:12%;left:0%;overflow: auto;"></div>
+
+<div class="container">
+<table class="table table-bordered" id="myTable" style="word-wrap: break-word;width:210px;top:5%;position: absolute;margin-left:210px;height:500px;overflow:auto;">
+
+</table>  
+
+<div id="images" style="position:fixed;max-width: 950px;top:1%;right:5%;overflow:auto;max-height: 1080px;z-index: 999"></div>  
+</div>
+
+<script>
+$(document).bind("contextmenu",function(e){
+    return false;
+});
+
+$('body').attr('unselectable','on')
+     .css({'-moz-user-select':'-moz-none',
+           '-moz-user-select':'none',
+           '-o-user-select':'none',
+           '-khtml-user-select':'none',
+           '-webkit-user-select':'none',
+           '-ms-user-select':'none',
+           'user-select':'none'
+     }).bind('selectstart', function(){ return false; });
+
+/*var countries = ['Afghanistan', 'Saint_Helena', 'Kosovo', 'Albania', 'Algeria', 'American_Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antigua_and_Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia', 'Botswana', 'Brazil', 'British_Virgin_Islands', 'Brunei', 'Bulgaria', 'Burkina_Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape_Verde', 'Cayman_Islands', 'Central_African_Republic', 'Chad', 'Chile', 'China', 'Christmas_Island', 'Colombia', 'Comoros', 'Cook_Islands', 'Costa_Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech', 'Democratic_Republic_of_the_Congo', 'Denmark', 'Djibouti', 'Dominica', 'Dominican_Republic', 'Ecuador', 'Egypt', 'El_Salvador', 'Equatorial_Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Falkland_Islands', 'Faroe_Islands', 'Fiji', 'Finland', 'France', 'French_Polynesia', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Greenland', 'Grenada', 'Guam', 'Guatemala', 'Guinea', 'Guinea_Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hong_Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory_Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macao', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall_Islands', 'Martinique', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montserrat', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'Netherlands_Antilles', 'New_Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Norfolk_Island', 'North_Korea', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Panama', 'Papua_New_Guinea', 'Paraguay', 'Peru', 'Philippines', 'Pitcairn_Islands', 'Poland', 'Portugal', 'Puerto_Rico', 'Qatar', 'Republic_of_the_Congo', 'Romania', 'Russian', 'Rwanda', 'Saint_Kitts_and_Nevis', 'Saint_Lucia', 'Saint_Pierre', 'Saint_Vicent_and_the_Grenadines', 'Samoa', 'San_Marino', 'Sao_Tome_and_Principe', 'Saudi_Arabia', 'Senegal', 'Serbia_and_Montenegro', 'Seychelles', 'Sierra_Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Soloman_Islands', 'Somalia', 'South_Africa', 'South_Georgia', 'South_Korea', 'Soviet_Union', 'Spain', 'Sri_Lanka', 'Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Tibet', 'East_Timor', 'Togo', 'Tonga', 'Trinidad_and_Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Turks_and_Caicos_Islands', 'Tuvalu', 'United_Arab_Emirates', 'Uganda', 'Ukraine', 'United_Kingdom', 'United_States_of_America', 'Uruguay', 'US_Virgin_Islands', 'Uzbekistan', 'Wallis_and_Futuna', 'Vanuatu', 'Vatican_City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'];*/
+
+var img = [
+             'flagquiz/flags_finnish/Afganistan.png', 'flagquiz/flags_finnish/Saint_Helena.png', 'flagquiz/flags_finnish/Kosovo.png', 'flagquiz/flags_finnish/Albania.png', 'flagquiz/flags_finnish/Algeria.png', 'flagquiz/flags_finnish/Amerikan_Samoa.png', 'flagquiz/flags_finnish/Andorra.png', 'flagquiz/flags_finnish/Angola.png', 'flagquiz/flags_finnish/Anguilla.png', 'flagquiz/flags_finnish/Antigua_ja_Barbuda.png', 'flagquiz/flags_finnish/Argentina.png', 'flagquiz/flags_finnish/Armenia.png', 'flagquiz/flags_finnish/Aruba.png', 'flagquiz/flags_finnish/Australia.png', 'flagquiz/flags_finnish/Itävalta.png', 'flagquiz/flags_finnish/Azerbaidzan.png', 'flagquiz/flags_finnish/Bahama.png', 'flagquiz/flags_finnish/Bahrain.png', 'flagquiz/flags_finnish/Bangladesh.png', 'flagquiz/flags_finnish/Barbados.png', 'flagquiz/flags_finnish/Valkovenäjä.png', 'flagquiz/flags_finnish/Belgia.png', 'flagquiz/flags_finnish/Belize.png', 'flagquiz/flags_finnish/Benin.png', 'flagquiz/flags_finnish/Bermuda.png', 'flagquiz/flags_finnish/Bhutan.png', 'flagquiz/flags_finnish/Bolivia.png', 'flagquiz/flags_finnish/Bosnia.png', 'flagquiz/flags_finnish/Botswana.png', 'flagquiz/flags_finnish/Brasilia.png', 'flagquiz/flags_finnish/Brittiläiset_Neitsytsaaret.png', 'flagquiz/flags_finnish/Brunei.png', 'flagquiz/flags_finnish/Bulgaria.png', 'flagquiz/flags_finnish/Burkina_Faso.png', 'flagquiz/flags_finnish/Burundi.png', 'flagquiz/flags_finnish/Kambodza.png', 'flagquiz/flags_finnish/Kamerun.png', 'flagquiz/flags_finnish/Kanada.png', 'flagquiz/flags_finnish/Kap_Verde.png', 'flagquiz/flags_finnish/Caymansaaret.png', 'flagquiz/flags_finnish/Keski_Afrikan_tasavalta.png', 'flagquiz/flags_finnish/Tsad.png', 'flagquiz/flags_finnish/Chile.png', 'flagquiz/flags_finnish/Kiina.png', 'flagquiz/flags_finnish/Joulusaari.png', 'flagquiz/flags_finnish/Kolumbia.png', 'flagquiz/flags_finnish/Komorit.png', 'flagquiz/flags_finnish/Cookinsaaret.png', 'flagquiz/flags_finnish/Costa_Rica.png', 'flagquiz/flags_finnish/Kroatia.png', 'flagquiz/flags_finnish/Kuuba.png', 'flagquiz/flags_finnish/Kypros.png', 'flagquiz/flags_finnish/Tsekki.png', 'flagquiz/flags_finnish/Kongon_demokraattinen_tasavalta.png', 'flagquiz/flags_finnish/Tanska.png', 'flagquiz/flags_finnish/Djibouti.png', 'flagquiz/flags_finnish/Dominica.png', 'flagquiz/flags_finnish/Dominikaaninen_tasavalta.png', 'flagquiz/flags_finnish/Ecuador.png', 'flagquiz/flags_finnish/Egypti.png', 'flagquiz/flags_finnish/El_Salvador.png', 'flagquiz/flags_finnish/Päiväntasaajan_Guinea.png', 'flagquiz/flags_finnish/Eritrea.png', 'flagquiz/flags_finnish/Viro.png', 'flagquiz/flags_finnish/Etiopia.png', 'flagquiz/flags_finnish/Falklandinsaaret.png', 'flagquiz/flags_finnish/Färsaaret.png', 'flagquiz/flags_finnish/Fiji.png', 'flagquiz/flags_finnish/Suomi.png', 'flagquiz/flags_finnish/Ranska.png', 'flagquiz/flags_finnish/Ranskan_Polynesia.png', 'flagquiz/flags_finnish/Gabon.png', 'flagquiz/flags_finnish/Gambia.png', 'flagquiz/flags_finnish/Georgia.png', 'flagquiz/flags_finnish/Saksa.png', 'flagquiz/flags_finnish/Ghana.png', 'flagquiz/flags_finnish/Gibraltar.png', 'flagquiz/flags_finnish/Kreikka.png', 'flagquiz/flags_finnish/Grönlanti.png', 'flagquiz/flags_finnish/Grenada.png', 'flagquiz/flags_finnish/Guam.png', 'flagquiz/flags_finnish/Guatemala.png', 'flagquiz/flags_finnish/Guinea.png', 'flagquiz/flags_finnish/Guinea_Bissau.png', 'flagquiz/flags_finnish/Guyana.png', 'flagquiz/flags_finnish/Haiti.png', 'flagquiz/flags_finnish/Honduras.png', 'flagquiz/flags_finnish/Hong_Kong.png', 'flagquiz/flags_finnish/Unkari.png', 'flagquiz/flags_finnish/Islanti.png', 'flagquiz/flags_finnish/Intia.png', 'flagquiz/flags_finnish/Indonesia.png', 'flagquiz/flags_finnish/Iran.png', 'flagquiz/flags_finnish/Irak.png', 'flagquiz/flags_finnish/Irlanti.png', 'flagquiz/flags_finnish/Israel.png', 'flagquiz/flags_finnish/Italia.png', 'flagquiz/flags_finnish/Norsunluurannikko.png', 'flagquiz/flags_finnish/Jamaika.png', 'flagquiz/flags_finnish/Japani.png', 'flagquiz/flags_finnish/Jordania.png', 'flagquiz/flags_finnish/Kazakstan.png', 'flagquiz/flags_finnish/Kenia.png', 'flagquiz/flags_finnish/Kiribati.png', 'flagquiz/flags_finnish/Kuwait.png', 'flagquiz/flags_finnish/Kirgisia.png', 'flagquiz/flags_finnish/Laos.png', 'flagquiz/flags_finnish/Latvia.png', 'flagquiz/flags_finnish/Libanon.png', 'flagquiz/flags_finnish/Lesotho.png', 'flagquiz/flags_finnish/Liberia.png', 'flagquiz/flags_finnish/Libya.png', 'flagquiz/flags_finnish/Liechtenstein.png', 'flagquiz/flags_finnish/Liettua.png', 'flagquiz/flags_finnish/Luxemburg.png', 'flagquiz/flags_finnish/Macao.png', 'flagquiz/flags_finnish/Makedonia.png', 'flagquiz/flags_finnish/Madagaskar.png', 'flagquiz/flags_finnish/Malawi.png', 'flagquiz/flags_finnish/Malesia.png', 'flagquiz/flags_finnish/Malediivit.png', 'flagquiz/flags_finnish/Mali.png', 'flagquiz/flags_finnish/Malta.png', 'flagquiz/flags_finnish/Marshallinsaaret.png', 'flagquiz/flags_finnish/Martinique.png', 'flagquiz/flags_finnish/Mauritania.png', 'flagquiz/flags_finnish/Mauritius.png', 'flagquiz/flags_finnish/Meksiko.png', 'flagquiz/flags_finnish/Mikronesia.png', 'flagquiz/flags_finnish/Moldova.png', 'flagquiz/flags_finnish/Monaco.png', 'flagquiz/flags_finnish/Mongolia.png', 'flagquiz/flags_finnish/Montserrat.png', 'flagquiz/flags_finnish/Marokko.png', 'flagquiz/flags_finnish/Mosambik.png', 'flagquiz/flags_finnish/Myanmar.png', 'flagquiz/flags_finnish/Namibia.png', 'flagquiz/flags_finnish/Nauru.png', 'flagquiz/flags_finnish/Nepal.png', 'flagquiz/flags_finnish/Alankomaat.png', 'flagquiz/flags_finnish/Alankomaiden_Antillit.png', 'flagquiz/flags_finnish/Uusi_Seelanti.png', 'flagquiz/flags_finnish/Nicaragua.png', 'flagquiz/flags_finnish/Niger.png', 'flagquiz/flags_finnish/Nigeria.png', 'flagquiz/flags_finnish/Niue.png', 'flagquiz/flags_finnish/Norfolkinsaaret.png', 'flagquiz/flags_finnish/Pohjois_Korea.png', 'flagquiz/flags_finnish/Norja.png', 'flagquiz/flags_finnish/Oman.png', 'flagquiz/flags_finnish/Pakistan.png', 'flagquiz/flags_finnish/Palau.png', 'flagquiz/flags_finnish/Panama.png', 'flagquiz/flags_finnish/Papua_Uusi_Guinea.png', 'flagquiz/flags_finnish/Paraguay.png', 'flagquiz/flags_finnish/Peru.png', 'flagquiz/flags_finnish/Filippiinit.png', 'flagquiz/flags_finnish/Pitcairn.png', 'flagquiz/flags_finnish/Puola.png', 'flagquiz/flags_finnish/Portugali.png', 'flagquiz/flags_finnish/Puerto_Rico.png', 'flagquiz/flags_finnish/Qatar.png', 'flagquiz/flags_finnish/Kongon_demokraattinen_tasavalta.png', 'flagquiz/flags_finnish/Romania.png', 'flagquiz/flags_finnish/Venäjä.png', 'flagquiz/flags_finnish/Ruanda.png', 'flagquiz/flags_finnish/Saint_Kitts_ja_Nevis.png', 'flagquiz/flags_finnish/Saint_Lucia.png', 'flagquiz/flags_finnish/Saint_Pierre.png', 'flagquiz/flags_finnish/Saint_Vicent_ja_Grenadiinit.png', 'flagquiz/flags_finnish/Samoa.png', 'flagquiz/flags_finnish/San_Marino.png', 'flagquiz/flags_finnish/Sao_Tome_ja_Principe.png', 'flagquiz/flags_finnish/Saudi_Arabia.png', 'flagquiz/flags_finnish/Senegal.png', 'flagquiz/flags_finnish/Serbia.png', 'flagquiz/flags_finnish/Montenegro.png', 'flagquiz/flags_finnish/Seychellit.png', 'flagquiz/flags_finnish/Sierra_Leone.png', 'flagquiz/flags_finnish/Singapore.png', 'flagquiz/flags_finnish/Slovakia.png', 'flagquiz/flags_finnish/Slovenia.png', 'flagquiz/flags_finnish/Salomonsaaret.png', 'flagquiz/flags_finnish/Somalia.png', 'flagquiz/flags_finnish/Etelä_Afrikka.png', 'flagquiz/flags_finnish/Etelä_Georgia.png', 'flagquiz/flags_finnish/Etelä_Korea.png', 'flagquiz/flags_finnish/Neuvostoliitto.png', 'flagquiz/flags_finnish/Espanja.png', 'flagquiz/flags_finnish/Sri_Lanka.png', 'flagquiz/flags_finnish/Sudan.png', 'flagquiz/flags_finnish/Suriname.png', 'flagquiz/flags_finnish/Swazimaa.png', 'flagquiz/flags_finnish/Ruotsi.png', 'flagquiz/flags_finnish/Sveitsi.png', 'flagquiz/flags_finnish/Syyria.png', 'flagquiz/flags_finnish/Taiwan.png', 'flagquiz/flags_finnish/Tadzikistan.png', 'flagquiz/flags_finnish/Tansania.png', 'flagquiz/flags_finnish/Thaimaa.png', 'flagquiz/flags_finnish/Tibet.png', 'flagquiz/flags_finnish/Itä_Timor.png', 'flagquiz/flags_finnish/Togo.png', 'flagquiz/flags_finnish/Tonga.png', 'flagquiz/flags_finnish/Trinidad_ja_Tobago.png', 'flagquiz/flags_finnish/Tunisia.png', 'flagquiz/flags_finnish/Turkki.png', 'flagquiz/flags_finnish/Turkmenistan.png', 'flagquiz/flags_finnish/Turks_ja_Caicossaaret.png', 'flagquiz/flags_finnish/Tuvalu.png', 'flagquiz/flags_finnish/Yhdistyneet_arabiemiirikunnat.png', 'flagquiz/flags_finnish/Uganda.png', 'flagquiz/flags_finnish/Ukraina.png', 'flagquiz/flags_finnish/Iso_Britannia.png', 'flagquiz/flags_finnish/Yhdysvallat.png', 'flagquiz/flags_finnish/Uruguay.png', 'flagquiz/flags_finnish/Yhdysvaltain_Neitsytsaaret.png', 'flagquiz/flags_finnish/Uzbekistan.png', 'flagquiz/flags_finnish/Wallis_ja_Futuna.png', 'flagquiz/flags_finnish/Vanuatu.png', 'flagquiz/flags_finnish/Vatikaanivaltio.png', 'flagquiz/flags_finnish/Venezuela.png', 'flagquiz/flags_finnish/Vietnam.png', 'flagquiz/flags_finnish/Jemen.png', 'flagquiz/flags_finnish/Sambia.png', 'flagquiz/flags_finnish/Zimbabwe.png']
+
+var europecountries = ["flagquiz/flags_finnish/Viro.png", "flagquiz/flags_finnish/Tanska.png", "flagquiz/flags_finnish/Ruotsi.png", "flagquiz/flags_finnish/Norja.png", "flagquiz/flags_finnish/Liettua.png", "flagquiz/flags_finnish/Latvia.png", "flagquiz/flags_finnish/Islanti.png", "flagquiz/flags_finnish/Unkari.png", "flagquiz/flags_finnish/Tsekki.png", "flagquiz/flags_finnish/Sveitsi.png", "flagquiz/flags_finnish/Slovenia.png", "flagquiz/flags_finnish/Slovakia.png", "flagquiz/flags_finnish/Saksa.png", "flagquiz/flags_finnish/Puola.png", "flagquiz/flags_finnish/Liechtenstein.png", "flagquiz/flags_finnish/Itävalta.png", "flagquiz/flags_finnish/Ranska.png", "flagquiz/flags_finnish/Luxemburg.png", "flagquiz/flags_finnish/Irlanti.png", "flagquiz/flags_finnish/Iso_Britannia.png", "flagquiz/flags_finnish/Belgia.png", "flagquiz/flags_finnish/Alankomaat.png", "flagquiz/flags_finnish/Venäjä.png", "flagquiz/flags_finnish/Valkovenäjä.png", "flagquiz/flags_finnish/Ukraina.png", "flagquiz/flags_finnish/Moldova.png", "flagquiz/flags_finnish/Kazakstan.png", "flagquiz/flags_finnish/Georgia.png", "flagquiz/flags_finnish/Azerbaidzan.png", "flagquiz/flags_finnish/Armenia.png", "flagquiz/flags_finnish/Vatikaanivaltio.png", "flagquiz/flags_finnish/Turkki.png", "flagquiz/flags_finnish/Serbia.png", "flagquiz/flags_finnish/San_Marino.png", "flagquiz/flags_finnish/Romania.png", "flagquiz/flags_finnish/Portugali.png", "flagquiz/flags_finnish/Montenegro.png", "flagquiz/flags_finnish/Monaco.png", "flagquiz/flags_finnish/Malta.png", "flagquiz/flags_finnish/Makedonia.png", "flagquiz/flags_finnish/Kypros.png", "flagquiz/flags_finnish/Kroatia.png", "flagquiz/flags_finnish/Kreikka.png", "flagquiz/flags_finnish/Kosovo.png", "flagquiz/flags_finnish/Italia.png", "flagquiz/flags_finnish/Espanja.png", "flagquiz/flags_finnish/Bulgaria.png", "flagquiz/flags_finnish/Bosnia.png", "flagquiz/flags_finnish/Andorra.png", "flagquiz/flags_finnish/Albania.png", "flagquiz/flags_finnish/Suomi.png"];
+
+
+
+var wordsrandom2 = [];
+
+
+
+for(var i = 0;i<51;i++)
+{
+
+  var randomized =  europecountries[(Math.floor(Math.random() * europecountries.length))];
+
+  let index = europecountries.indexOf(randomized);
+  if (index !== -1) europecountries.splice(index, 1);
+
+  wordsrandom2.push(randomized);
+
+  $("#images").append("<img src='" + wordsrandom2[i] +  "'/>");
+
+  
+}
+
+
+for(var i = 0;i<51;i++)
+{
+
+  var wordsrandom3 = wordsrandom2[Math.floor(Math.random()*wordsrandom2.length)]
+  var splitted = wordsrandom3.substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ");
+
+  let index = wordsrandom2.indexOf(wordsrandom3);
+  if (index !== -1) wordsrandom2.splice(index, 1);
+
+  
+  $(".table").append("<tr><td class='image' style='text-align:center;'>" + splitted +  "</td></tr>");
+}
+
+/*
+function comparer(index) {
+    return function(a, b) 
+    {
+        var valA = getCellValue(a, index), valB = getCellValue(b, index);
+        return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
+    }
+}
+function getCellValue(row, index)
+{
+   return $(row).children('td').eq(index).text();
+}
+
+$('td').click(function(){
+    var table = $(this).parents('table').eq(0);
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+    for (var i = 0; i < rows.length; i++)
+      {
+        table.append(rows[i]);
+      }
+})
+
+
+$("td").click();
+*/
+
+setTimeout(function(){
+
+
+  var table, rows, switching, i, x, y, shouldSwitch;
+  table = document.getElementsByClassName("myTable");
+  switching = true;
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = $(".table tr");
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 0; i < (rows.length - 1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[0];
+      y = rows[i + 1].getElementsByTagName("TD")[0];
+      //check if the two rows should switch place:
+      if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        //if so, mark as a switch and break the loop:
+        shouldSwitch = true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+},40)
+
+
+$("img").each(function(){
+
+  $(this).draggable();
+
+})
+ 
+
+
+ $("img").draggable({
+    containment: 'document',
+       helper: 'clone',
+       opacity: 1,
+       zIndex:10000,
+       appendTo: "body",
+        revert:  function(dropped) {
+             var $draggable = $(this),
+                 hasBeenDroppedBefore = $draggable.data('hasBeenDropped'),
+                 wasJustDropped = dropped && dropped[0].id == "droppable";
+             if(wasJustDropped) {
+                 // don't revert, it's in the droppable
+                 return false;
+             } else {
+                 if (hasBeenDroppedBefore) {
+                     // don't rely on the built in revert, do it yourself
+                     $draggable.animate({ top: 0, left: 0 }, 'slow');
+                     return false;
+                 } else {
+                     // just let the build in work, although really, you could animate to 0,0 here as well
+                     return true;
+                 }
+             }
+        }
+    });
+var flagsonplace = 0;
+var flagsonwrongplace = 0;
+ var number = 50; 
+var pisteet = 0;
+
+var randomgolden = Math.floor(Math.random() * number);
+
+var golden = $("td").eq(randomgolden);
+$(golden).css("position", "absolute");
+$(golden).css("background-color", "#FFDF00");
+$(golden).css("font-size", "3em");
+$(golden).css("color", "black");
+
+
+$("td").each(function(){
+   if($(this).css("background-color") !="rgb(255, 223, 0)")
+    {
+      $(this).hide();
+    }
+
+})
+var fontsize = 0.81;
+
+ $(function() {
+    $("td").droppable({  
+
+      classes: {
+        "ui-droppable-hover": "ui-state-hover"
+      },
+      drop: function( event, ui ) 
+      {
+        
+        
+          if(number == 41)
+          {
+            var randomgolden = Math.floor(Math.random() * number);
+            var golden = $("td").eq(randomgolden);
+            
+            setTimeout(function(){
+              $(golden).css("position", "absolute");
+              $(golden).css("background-color", "#FFDF00");
+              $(golden).css("font-size", "3em");
+              $(golden).css("color", "black");
+
+
+            $("td").each(function(){
+             if($(this).css("background-color") !="rgb(255, 223, 0)")
+              {
+                $(this).hide();
+              }
+              },300)
+
+          })
+
+          }
+          if(number == 31)
+          {
+            var randomgolden = Math.floor(Math.random() * number);
+            var golden = $("td").eq(randomgolden);
+
+            setTimeout(function(){
+              $(golden).css("position", "absolute");
+              $(golden).css("background-color", "#FFDF00");
+              $(golden).css("font-size", "3em");
+              $(golden).css("color", "black");
+
+
+            $("td").each(function(){
+             if($(this).css("background-color") !="rgb(255, 223, 0)")
+              {
+                $(this).hide();
+              }
+              },300)
+
+          })
+          }
+          if(number == 21)
+          {
+            var randomgolden = Math.floor(Math.random() * number);
+            var golden = $("td").eq(randomgolden);
+
+            setTimeout(function(){
+              $(golden).css("position", "absolute");
+              $(golden).css("background-color", "#FFDF00");
+              $(golden).css("font-size", "3em");
+              $(golden).css("color", "black");
+
+
+            $("td").each(function(){
+             if($(this).css("background-color") !="rgb(255, 223, 0)")
+              {
+                $(this).hide();
+              }
+              },300)
+
+          })
+          }
+          if(number == 11)
+          {
+            var randomgolden = Math.floor(Math.random() * number);
+            var golden = $("td").eq(randomgolden);
+
+            setTimeout(function(){
+              $(golden).css("position", "absolute");
+              $(golden).css("background-color", "#FFDF00");
+              $(golden).css("font-size", "3em");
+              $(golden).css("color", "black");
+
+
+            $("td").each(function(){
+             if($(this).css("background-color") !="rgb(255, 223, 0)")
+              {
+                $(this).hide();
+              }
+              },300)
+          })
+          }
+
+
+           if($(this).text() != ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") && number == 50 )
+           {
+                pisteet--;
+                $("#points").html(`<span style="font-size:1.8em;position: fixed;color:yellow;top:8%;">Pisteitä: ${pisteet}/101</span>`);
+                $(golden).css("position", "absolute");
+                $(golden).css("background-color", "#FFDF00");
+                $(golden).css("font-size", "3em");
+           }
+           if($(this).text() != ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") && number == 41 )
+           {
+                pisteet--;
+                $("#points").html(`<span style="font-size:1.8em;position: fixed;color:yellow;top:8%;">Pisteitä: ${pisteet}/101</span>`);
+                $(golden).css("position", "absolute");
+                $(golden).css("background-color", "#FFDF00");
+                $(golden).css("font-size", "3em");
+           }
+           if($(this).text() != ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") && number == 31 )
+           {
+                pisteet--;
+                $("#points").html(`<span style="font-size:1.8em;position: fixed;color:yellow;top:8%;">Pisteitä: ${pisteet}/101</span>`);
+                $(golden).css("position", "absolute");
+                $(golden).css("background-color", "#FFDF00");
+                $(golden).css("font-size", "3em");
+           }
+           if($(this).text() != ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") && number == 21 )
+           {
+                pisteet--;
+                $("#points").html(`<span style="font-size:1.8em;position: fixed;color:yellow;top:8%;">Pisteitä: ${pisteet}/101</span>`);
+                $(golden).css("position", "absolute");
+                $(golden).css("background-color", "#FFDF00");
+                $(golden).css("font-size", "3em");
+           }
+           if($(this).text() != ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") && number == 11 )
+           {
+                pisteet--;
+                $("#points").html(`<span style="font-size:1.8em;position: fixed;color:yellow;top:8%;">Pisteitä: ${pisteet}/101</span>`);
+                $(golden).css("position", "absolute");
+                $(golden).css("background-color", "#FFDF00");
+                $(golden).css("font-size", "3em");
+           }
+
+          if($(this).text() == ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") )
+          {
+            fontsize += .03;
+            $("td").css("font-size", "" + fontsize + "em");
+            $("td").show();
+            flagsonplace++;
+            $(this).removeClass("red");
+            $(this).addClass("green");
+            $(this).parent().remove();
+
+            ui.draggable.appendTo("#completedflags");
+            $("#correct").html(`<span style="font-size:1.8em;position: fixed;color:lime;top:4%;">Lippuja paikoillaan: ${flagsonplace}/51</span>`);
+            $("#correct").fadeOut(200).fadeIn(200);
+            pisteet++;
+            if(ui.draggable.hasClass("spin"))
+                  {
+                    pisteet++;
+                  }
+            $("#points").html(`<span style="font-size:1.8em;position: fixed;color:yellow;top:8%;">Pisteitä: ${pisteet}/101</span>`);
+                
+            setTimeout(function(){
+
+              var random = Math.floor(Math.random() * number);
+
+              var dog = $("#images img").eq(random);
+           
+              $(dog).addClass("spin");
+              if(number != 50 || number != 41 || number != 31 || number != 21 || number != 11)
+              {
+                $(dog).animate({  borderSpacing: -360 }, {
+                  step: function(now,fx) {
+                    $(this).css('transform','rotateY('+now+'deg)');
+                  },
+                  duration:'slow'
+                  },'linear');
+                  number--;
+              }
+
+
+
+              },500)
+
+             $("img").each(function(){
+
+              $(this).removeClass("spin")
+
+          })
+
+
+          }
+          
+          if($(this).text() != ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " "))
+          {
+
+           
+            $(this).addClass("red");
+            flagsonwrongplace++;
+            $("#wrong").html(`<span style="font-size:1.8em;position: fixed;color:red;">Lippuja laitettu väärille paikoille: ${flagsonwrongplace}</span>`);
+            $("#wrong").fadeOut(200).fadeIn(200);
+
+         /*    if($(this).css("background-color", "lime"))
+            {
+              return false;
+            }*/
+          }
+        
+      }
+});
+});
+
+
+
+  $("#completedflags img").each(function(){
+
+
+    $(this).draggable("disable");
+
+ })
+
+
+
+
+
+
+/*setInterval(function(){
+
+  $("img").animate({  borderSpacing: -360 }, {
+    step: function(now,fx) {
+      $(this).css('transform','rotateX('+now+'deg)');
+    },
+    duration:'slow'
+    },'linear');
+
+},8000)
+
+setInterval(function(){
+
+  $("img").animate({  borderSpacing: -360 }, {
+    step: function(now,fx) {
+      $(this).css('transform','rotateZ('+now+'deg)');
+    },
+    duration:'slow'
+    },'linear');
+
+},12000)*/
+ 
+
+</script>
+</body>  
+</html>
