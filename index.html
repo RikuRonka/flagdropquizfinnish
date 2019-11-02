@@ -228,6 +228,8 @@ $(golden).css("position", "absolute");
 $(golden).css("background-color", "#FFDF00");
 $(golden).css("font-size", "3em");
 $(golden).css("color", "black");
+  
+
 
 
 $("td").each(function(){
@@ -251,6 +253,7 @@ var fontsize = 0.81;
         
           if(number == 41)
           {
+            $(".table").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
             
@@ -273,6 +276,7 @@ var fontsize = 0.81;
           }
           if(number == 31)
           {
+            $(".table").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -294,6 +298,7 @@ var fontsize = 0.81;
           }
           if(number == 21)
           {
+            $(".table").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -315,6 +320,7 @@ var fontsize = 0.81;
           }
           if(number == 11)
           {
+            $(".table").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -378,6 +384,7 @@ var fontsize = 0.81;
 
           if($(this).text() == ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") )
           {
+            $(".table").addClass("table-bordered");
             fontsize += .03;
             $("td").css("font-size", "" + fontsize + "em");
             $("td").show();
