@@ -242,7 +242,7 @@ $("td").each(function(){
 var fontsize = 0.81;
 
  $(function() {
-   $(".table").removeClass("table-bordered");
+   $("#myTable").removeClass("table-bordered");
     $("td").droppable({  
 
       classes: {
@@ -254,7 +254,7 @@ var fontsize = 0.81;
         
           if(number == 41)
           {
-            $(".table").removeClass("table-bordered");
+            $("#myTable").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
             
@@ -277,7 +277,7 @@ var fontsize = 0.81;
           }
           if(number == 31)
           {
-            $(".table").removeClass("table-bordered");
+            $("#myTable").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -299,7 +299,7 @@ var fontsize = 0.81;
           }
           if(number == 21)
           {
-            $(".table").removeClass("table-bordered");
+            $("#myTable").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -321,7 +321,7 @@ var fontsize = 0.81;
           }
           if(number == 11)
           {
-            $(".table").removeClass("table-bordered");
+            $("#myTable").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -385,7 +385,7 @@ var fontsize = 0.81;
 
           if($(this).text() == ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") )
           {
-            $(".table").addClass("table-bordered");
+            $("#myTable").addClass("table-bordered");
             fontsize += .03;
             $("td").css("font-size", "" + fontsize + "em");
             $("td").show();
