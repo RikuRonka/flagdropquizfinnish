@@ -55,7 +55,7 @@ img{
 <div id="completedflags" style="width:470px;height: 950px;position: absolute;top:12%;left:0%;overflow: auto;"></div>
 
 <div class="container">
-<table class="table table-bordered" id="myTable" style="word-wrap: break-word;width:210px;top:5%;position: absolute;margin-left:210px;height:500px;overflow:auto;">
+<table class="table" id="myTable" style="word-wrap: break-word;width:210px;top:5%;position: absolute;margin-left:210px;height:500px;overflow:auto;">
 
 </table>  
 
@@ -242,7 +242,7 @@ $("td").each(function(){
 var fontsize = 0.81;
 
  $(function() {
-   $("#myTable").removeClass("table-bordered");
+
     $("td").droppable({  
 
       classes: {
@@ -254,7 +254,7 @@ var fontsize = 0.81;
         
           if(number == 41)
           {
-            $("#myTable").removeClass("table-bordered");
+
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
             
@@ -277,7 +277,7 @@ var fontsize = 0.81;
           }
           if(number == 31)
           {
-            $("#myTable").removeClass("table-bordered");
+      
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -299,7 +299,7 @@ var fontsize = 0.81;
           }
           if(number == 21)
           {
-            $("#myTable").removeClass("table-bordered");
+    
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -321,7 +321,6 @@ var fontsize = 0.81;
           }
           if(number == 11)
           {
-            $("#myTable").removeClass("table-bordered");
             var randomgolden = Math.floor(Math.random() * number);
             var golden = $("td").eq(randomgolden);
 
@@ -385,7 +384,6 @@ var fontsize = 0.81;
 
           if($(this).text() == ui.draggable.attr("src").toString().substr(23, img.length - 4).replace(/.png/g, "").replace(/_/g, " ") )
           {
-            $("#myTable").addClass("table-bordered");
             fontsize += .03;
             $("td").css("font-size", "" + fontsize + "em");
             $("td").show();
